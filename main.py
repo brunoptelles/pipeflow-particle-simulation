@@ -3,6 +3,7 @@ from src.loader import Loader
 from src.simulation import simular
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def get_config():
     demo = input("Demo? (y/n)\n").lower()
@@ -160,29 +161,33 @@ if __name__ == "__main__":
 
     print("INICIANDO")
 
+    os.makedirs("./data/outputs", exist_ok=True)
+    os.makedirs("./data/chunks", exist_ok=True)
+
     lista_simulacoes = gerar_particulas(config, base)
 
     with Pool(processes=config["n_processos"]) as pool:
         resultados = pool.starmap(simular, lista_simulacoes)
     
-    xaux = np.arange(0, 2*config["r_max"], 1)
-    yaux = np.arange(0, 2*config["r_max"], 1)
+    if config["demo"]:
+        xaux = np.arange(0, 2*config["r_max"], 1)
+        yaux = np.arange(0, 2*config["r_max"], 1)
 
-    theta = np.linspace(0, 2*np.pi, 1000)
-    x1 = 100 +100*np.cos(theta)
-    y1 = 100 +100*np.sin(theta)
+        theta = np.linspace(0, 2*np.pi, 1000)
+        x1 = 100 +100*np.cos(theta)
+        y1 = 100 +100*np.sin(theta)
 
-    
+        
 
-    x, y = np.meshgrid(xaux, yaux)
-    fig, ax = plt.subplots(figsize = (10,10))
-    ax.set_aspect('equal')
-    loader.load(0)
-    plt.quiver(x[::8, ::8], y[::8, ::8], loader.cache[0][1][::8, ::8, 0], loader.cache[0][2][::8, ::8, 0])
+        x, y = np.meshgrid(xaux, yaux)
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.set_aspect('equal')
+        loader.load(0)
+        plt.quiver(x[::8, ::8], y[::8, ::8], loader.cache[0][1][::8, ::8, 0], loader.cache[0][2][::8, ::8, 0])
 
-    for traj in resultados:
-        for p in range(n_threads):
-            plt.plot(traj[p][1], traj[p][2])
-    plt.plot(x1, y1)
-    plt.show()
+        for traj in resultados:
+            for p in range(n_threads):
+                plt.plot(traj[p][1], traj[p][2])
+        plt.plot(x1, y1)
+        plt.show()
         
